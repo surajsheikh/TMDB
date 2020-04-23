@@ -1,22 +1,33 @@
 package com.media.client;
 
-import com.media.MoviesAttributes.Page;
+import net.minidev.json.JSONObject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class CallRestService implements CommandLineRunner {
 
-    private static void callRestService(){
-//        Below 2 lines can be used anywhere to consume the o/p of Rest web service and get the results
+    public static void callRestService(){
         RestTemplate restTemplate= new RestTemplate();
-        Page page = restTemplate.getForObject("https://api.themoviedb.org/3/search/company?api_key=433d425daefdff55eeb180ec5abfa479&query=Titanic",Page.class);
-        System.out.println("Movie Name: "+page.getName());
-    }
+        JSONObject response = restTemplate.getForObject("https://api.themoviedb.org/3/search/company?api_key=433d425daefdff55eeb180ec5abfa479&query=Titanic", JSONObject.class);
 
-//    After the Spring Boot App starts up and it's done creating all the spring beans and
-//    creating the application context, it will call all the run methods implemented by CommandLineRunner
+        try {
+            System.out.println("Response: "+response.toJSONString());
+            List<Map> list = (ArrayList) response.get("results");
+            for(Map l : list) {
+                Map<String, String> resultsMap = l;
+                System.out.println("Name: "+l.get("name"));
+                System.out.println("Origin Country: "+l.get("origin_country"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void run(String... args) throws Exception {
